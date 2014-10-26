@@ -1,0 +1,6 @@
+what,kind,bundleId,bundleVersion,description,time
+java.vm.specification.version,sysinfo,,,"1.0",1317893862580
+java.vm.vendor,sysinfo,,,"Sun Microsystems Inc.",1317893862580
+java.vm.version,sysinfo,,,"20.2-b06",1317893862580
+started,bundle,org.eclipse.epp.usagedata.ui,1.1.0.R200906100410,"org.eclipse.epp.usagedata.ui",1317893863611
+deactivated,workbench,org.eclipse.ui.workbench,3.5.2.M20100113-0800,"",1317893863962

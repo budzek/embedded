@@ -1,0 +1,343 @@
+/******************************************************************************
+ *
+ * Copyright:
+ *    (C) 2000 - 2007 Embedded Artists AB
+ *
+ * Description:
+ *    Main program for LPC2148 Education Board test program
+ *
+ *****************************************************************************/
+
+#include "pre_emptive_os/api/osapi.h"
+#include "pre_emptive_os/api/general.h"
+#include <printf_P.h>
+#include <ea_init.h>
+#include <lpc2xxx.h>
+#include <consol.h>
+
+#define PROC1_STACK_SIZE 1024
+#define INIT_STACK_SIZE  400
+
+static tU8 proc1Stack[PROC1_STACK_SIZE];
+static tU8 initStack[INIT_STACK_SIZE];
+static tU8 pid1;
+
+static void proc1(void* arg);
+static void initProc(void* arg);
+
+int strcmp(char* s1, char* s2);
+
+void Start_Timer( )
+{
+  T1TCR = 0x02;          //stop and reset timer
+  T1PR  = CORE_FREQ/1000000; //w mikrosekundach
+  T1IR  = 0xff;          //reset all interrrupt flags
+  T1TCR = 0x01;          //start timer
+}
+
+/*****************************************************************************
+ *
+ * Description:
+ *    The first function to execute 
+ *
+ ****************************************************************************/
+
+int
+main(void)
+{
+  tU8 error;
+  tU8 pid;
+
+  osInit();
+  osCreateProcess(initProc, initStack, INIT_STACK_SIZE, &pid, 1, NULL, &error);
+  osStartProcess(pid, &error);
+  
+  osStart();
+  return 0;
+}
+
+
+#define CMD_BUFFER 16
+#define bool tU8
+#define false 0
+#define true 1
+
+#define KEY "Key"
+#define KEY_LENGTH (sizeof(KEY)-1)
+
+
+bool cmd_ready = false; // Po przeczytaniu znaku <= ' ' ustawione jest na true;
+tU8 cmd_counter;
+char cmd[CMD_BUFFER];
+char Buffer[512];
+
+void Reset_cmd() {
+	cmd_ready = false;
+	cmd_counter = 0;
+	cmd[CMD_BUFFER-1]=0;
+}
+
+void put_cmd (char znak){
+	if(cmd_ready)
+		return;
+	if(znak < ' ')
+		cmd_ready = true;
+	if(cmd_counter < CMD_BUFFER-2)
+		cmd[cmd_counter++] = znak;
+}
+
+void Read_Buffer() {
+	int idx;
+	for(idx=0; idx<512; idx++)
+		Buffer[idx] = consolGetCh();
+}
+
+void Write_Buffer() {
+	int idx;
+	for(idx=0; idx<512; idx++)
+		consolSendChar(Buffer[idx]);
+}
+
+
+/*
+ * RC4
+ */
+
+unsigned char RC4_S[256];
+unsigned int RC4_i, RC4_j;
+
+void swap(unsigned char *s, unsigned int i, unsigned int j) {
+    unsigned char temp = s[i];
+    s[i] = s[j];
+    s[j] = temp;
+}
+
+/* KSA */
+void rc4_init(unsigned char *key, unsigned int key_length) {
+    for (RC4_i = 0; RC4_i < 256; RC4_i++)
+    	RC4_S[RC4_i] = RC4_i;
+    for (RC4_i = RC4_j = 0; RC4_i < 256; RC4_i++) {
+    	RC4_j = (RC4_j + key[RC4_i % key_length] + RC4_S[RC4_i]) & 255;
+        swap(RC4_S, RC4_i, RC4_j);
+    }
+    RC4_i = RC4_j = 0;
+}
+
+/* PRGA */
+unsigned char RC4_stream() { //generator strumienia
+	RC4_i = (RC4_i + 1) & 255;
+	RC4_j = (RC4_j + RC4_S[RC4_i]) & 255;
+    swap(RC4_S, RC4_i, RC4_j);
+    return RC4_S[(RC4_S[RC4_i] + RC4_S[RC4_j]) & 255];
+}
+
+void RC4() {
+	IOSET1 = 0x00040000;
+	Read_Buffer();
+	Start_Timer();
+	rc4_init((unsigned char *)KEY, KEY_LENGTH);
+	short idx;
+/*
+	for (idx = 0; idx < 1024; idx++)
+		RC4_stream();
+*/
+	for (idx=0; idx < 512; idx++)
+		Buffer [idx] ^= RC4_stream();
+	int T = T1TC;
+	Write_Buffer();
+	printf("Czas operacji: %d us\n, klucz=%s, dlugosc=%d", T, KEY, KEY_LENGTH);
+	IOCLR1 = 0x00040000;
+}
+
+void TEA() {
+	IOSET1 = 0x00040000;
+	Read_Buffer();
+	int T = T1TC;
+	strcpy(Buffer, "nie zaimplementowane");
+	Write_Buffer();
+	printf("Czas operacji: %d us\n", T);
+	IOCLR1 = 0x00040000;
+}
+
+void Serpent() {
+	IOSET1 = 0x00040000;
+	Read_Buffer();
+	int T = T1TC;
+	strcpy(Buffer, "nie zaimplementowane");
+	Write_Buffer();
+	printf("Czas operacji: %d us\n", T);
+	IOCLR1 = 0x00040000;
+}
+
+
+
+static void
+proc1(void* arg)
+{
+  printf("\n\n\n\n\n");
+  printf("*******************************************************\n");
+  printf("*                                                     *\n");
+  printf("* Program testujacy algorytmy szyfrowania             *\n");
+  printf("* RC4, TEA, Serpent                                   *\n");
+  printf("*                                                     *\n");
+  printf("* (C) Morawski, Arendt, Instytut Informatyki, P£      *\n");
+  printf("*                                                     *\n");
+  printf("*******************************************************\n");
+  printf("*                                                     *\n");
+  printf("* Oczekiwane slowo kluczowe                           *\n");
+  printf("*     RC4                                             *\n");
+  printf("*     TEA                                             *\n");
+  printf("*     Serpent                                         *\n");
+  printf("* A po nich dok³adnie 512B do zaszyfrowania           *\n");
+  printf("* Po zaszyfrowaniu blok zostanie wypisany przez UART  *\n");
+  printf("*                                                     *\n");
+  printf("* Stan oczekiwania sygnalizuje mrugajaca dioda P1.16  *\n");
+  printf("* Blad sygnalizuje dioda P1.17                        *\n");
+  printf("* Stan zajetosci sygnalizuje dioda P1.18              *\n");
+  printf("*                                                     *\n");
+  printf("*                                                     *\n");
+  printf("*******************************************************\n");
+
+  IODIR1 |= 0x000F0000;  //LEDs
+  IOSET0 = 0x000F0000;   //wy³¹czenie diod
+
+  bool Blink = 0;
+  char znak;
+  for(;;) {
+	  while (!cmd_ready) {
+		  while(consolGetChar(&znak))
+			  put_cmd(znak);
+		  if(Blink)
+			  IOSET1 = 0x00010000;
+		  else
+			  IOCLR1 = 0x00010000;
+		  Blink = !Blink;
+		  osSleep (25);
+	  }
+	  IOCLR1 = 0x00020000; //Nie ma b³êdu
+	  if(strcmp (cmd, "RC4") == 0)
+		  RC4();
+	  else if (strcmp (cmd, "TEA") == 0)
+		  TEA();
+	  else if (strcmp (cmd, "Serpent") == 0)
+		  Serpent();
+	  else
+		  IOSET1 = 0x00020000; //Blad
+	  Reset_cmd();
+  };
+/*
+  IODIR |= 0x00008000;  //P0.15
+
+  IODIR |= 0x00260000;  //RGB
+  IOSET  = 0x00260000;
+
+  IODIR1 |= 0x000F0000;  //LEDs
+  IOSET1  = 0x000F0000;
+  osSleep(25);
+  IOCLR1  = 0x00030000;
+  osSleep(20);
+  IOCLR1  = 0x00050000;
+  osSleep(15);
+  IOCLR1  = 0x000c0000;
+  osSleep(10);
+  IOCLR1  = 0x00090000;
+  osSleep(5);
+  IOSET1  = 0x000F0000;
+  IODIR1 &= ~0x00F00000;  //Keys
+    
+  for(;;)
+  {
+    static tU8 cnt;
+    tU8 rxChar;
+      
+    //detect if P0.14 key is pressed
+	  if ((IOPIN & 0x00004000) == 0)
+	  {
+	    printf("\nP0.14");
+	  }
+
+    //detect if P1.20 key is pressed
+	  if ((IOPIN1 & 0x00100000) == 0)
+      IOCLR1  = 0x00010000;
+    else
+      IOSET1  = 0x00010000;
+
+    //detect if P1.21 key is pressed
+	  if ((IOPIN1 & 0x00200000) == 0)
+      IOCLR1  = 0x00020000;
+    else
+      IOSET1  = 0x00020000;
+
+    //detect if P1.22 key is pressed
+	  if ((IOPIN1 & 0x00400000) == 0)
+      IOCLR1  = 0x00040000;
+    else
+      IOSET1  = 0x00040000;
+
+    //detect if P1.23 key is pressed
+	  if ((IOPIN1 & 0x00800000) == 0)
+      IOCLR1  = 0x00080000;
+    else
+      IOSET1  = 0x00080000;
+
+    cnt++;
+    if ((cnt % rgbSpeed) == 0)
+    {
+      IOSET = 0x00260000;
+      if (cnt == rgbSpeed)
+        IOCLR = 0x00020000;
+      else if (cnt == (2*rgbSpeed))
+        IOCLR = 0x00040000;
+      else
+      {
+        IOCLR = 0x00200000;
+        cnt = 0;
+      }
+    }
+    
+    //echo terminal
+    if (TRUE == consolGetChar(&rxChar))
+      consolSendCh(rxChar);
+
+    osSleep(5);
+    
+    if (TRUE == killProc1)
+    {
+      printf("\nProc #1 kill itself!!!\n");
+      osDeleteProcess();
+    }
+  }
+*/
+}
+
+/*****************************************************************************/
+static void
+initProc(void* arg)
+{
+  tU8 error;
+
+  eaInit();   //initialize printf
+//  i2cInit();  //initialize I2C
+  osCreateProcess(proc1, proc1Stack, PROC1_STACK_SIZE, &pid1, 3, NULL, &error);
+  osStartProcess(pid1, &error);
+  osDeleteProcess();
+}
+
+/*****************************************************************************
+ *
+ * Description:
+ *    The timer tick entry function that is called once every timer tick
+ *    interrupt in the RTOS. Observe that any processing in this
+ *    function must be kept as short as possible since this function
+ *    execute in interrupt context.
+ *
+ * Params:
+ *    [in] elapsedTime - The number of elapsed milliseconds since last call.
+ *
+ ****************************************************************************/
+volatile unsigned int msClock = 0;
+void
+appTick(tU32 elapsedTime)
+{
+  msClock += elapsedTime;
+}

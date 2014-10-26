@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307522203
+error,log,,,"The file does not exist for the external tool named Telnet to OpenOCD server.",1261307522250
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307523937
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307533875
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307537828
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307542015
+error,log,,,"The file does not exist for the external tool named Telnet to OpenOCD server.",1261307542046
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307544640
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307555031
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307577703
+failed,command,org.eclipse.ui.externaltools,3.2.0.v20090504,"org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations",1261307577796
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307592765
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307635500
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307640984
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307641046
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307641078
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307646625
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307647953
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307660562
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307734140
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307780671
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307801531
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307809765
+failed,command,org.eclipse.ui.externaltools,3.2.0.v20090504,"org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations",1261307809890
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307810984

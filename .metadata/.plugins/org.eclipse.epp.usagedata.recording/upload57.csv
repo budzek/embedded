@@ -1,0 +1,16 @@
+what,kind,bundleId,bundleVersion,description,time
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261330870578
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261330873921
+executed,command,org.eclipse.ui.externaltools,3.2.0.v20090504,"org.eclipse.ui.externaltools.ExternalToolMenuDelegateToolbar",1261330878703
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261330898031
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261330900062
+closed,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261330900531
+stopped,bundle,com.zylin.embeddedcdt,4.9.1,"com.zylin.embeddedcdt",1261330901593
+stopped,bundle,org.eclipse.cdt.debug.mi.ui,6.0.0.200909110608,"org.eclipse.cdt.debug.mi.ui",1261330901609
+stopped,bundle,org.eclipse.cdt.debug.mi.core,6.0.0.200909110608,"org.eclipse.cdt.debug.mi.core",1261330901609
+stopped,bundle,org.eclipse.cdt.dsf.gdb.ui,2.0.0.200909110608,"org.eclipse.cdt.dsf.gdb.ui",1261330901671
+stopped,bundle,org.eclipse.cdt.dsf.ui,2.0.1.200909110608,"org.eclipse.cdt.dsf.ui",1261330901765
+stopped,bundle,com.adacore.gnatbench.cdt,2.1.0,"com.adacore.gnatbench.cdt",1261330901812
+stopped,bundle,org.eclipse.cdt.launch,6.0.0.200909110608,"org.eclipse.cdt.launch",1261330901828
+stopped,bundle,org.eclipse.cdt.debug.ui,6.0.0.200909110608,"org.eclipse.cdt.debug.ui",1261330901828
+stopped,bundle,org.eclipse.cdt.dsf.gdb,2.0.0.200909110608,"org.eclipse.cdt.dsf.gdb",1261330901890

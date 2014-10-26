@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307034968
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307034984
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307038218
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307041078
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307131640
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307172343
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307172359
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307172593
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307175140
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307200234
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307319546
+failed,command,org.eclipse.ui.externaltools,3.2.0.v20090504,"org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations",1261307319640
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307336015
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307336515
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307336546
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307338984
+error,log,,,"The file does not exist for the external tool named OpenOCD telnet.",1261307355640
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307355812
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307368359
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307382609
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307507296
+failed,command,org.eclipse.ui.externaltools,3.2.0.v20090504,"org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations",1261307507406
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307512781
+error,log,,,"The file does not exist for the external tool named Telnet to OpenOCD server.",1261307512859
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1261307518187
