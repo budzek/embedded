@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "lcd.h"
 #include "key.h"
+#include "buzzer.h"
 
 #define MAXROW 20
 #define MAXCOL 31
@@ -82,6 +83,7 @@ void playSnake(void)
       //collision detection - food (good!)
       if (screenGrid[snake[snakeLength-1].row][snake[snakeLength-1].col] == '.')
       {
+    	playMelody();
         snakeLength++;
         addSegment();
         addFood();
