@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "lcd.h"
 #include "key.h"
-#include "select.h"
 
 
 /******************************************************************************
@@ -172,33 +171,6 @@ void playSnake(void)
     if (score > high_score)
       high_score = score;
     showScore();
-
-    {
-      tMenu menu;
-        
-      menu.xPos = 10;
-      menu.yPos = 40;
-      menu.xLen = 6+(12*8);
-      menu.yLen = 4*14;
-      menu.noOfChoices = 2;
-      menu.initialChoice = 0;
-      menu.pHeaderText = "Game over!";
-      menu.headerTextXpos = 20;
-      menu.pChoice[0] = "Restart game";
-      menu.pChoice[1] = "End game";
-      menu.bgColor       = 0;
-      menu.borderColor   = 0x6d;
-      menu.headerColor   = 0;
-      menu.choicesColor  = 0xfd;
-      menu.selectedColor = 0xe0;
-        
-      switch(drawMenu(menu))
-      {
-        case 0: done = FALSE; break;  //Restart game
-        case 1: done = TRUE; break;   //End game
-        default: break;
-      }
-    }
 
   } while (done == FALSE);
 }
