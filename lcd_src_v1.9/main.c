@@ -23,24 +23,9 @@
 #include "lcd.h"
 #include "key.h"
 #include "uart.h"
-#include "exampleGame.h"
 #include "snake.h"
-#include "pong.h"
-#include "bt.h"
 #include "hw.h"
 #include "version.h"
-#include "configAppl.h"
-#include "startupDisplay.h"
-
-#ifdef INCLUDE_MENU_FIRE
-#include "fire_0_100x40c.h"
-#include "fire_1_100x40c.h"
-#include "fire_2_100x40c.h"
-#include "fire_3_100x40c.h"
-#include "fire_4_100x40c.h"
-#include "fire_5_100x40c.h"
-#include "fire_6_100x40c.h"
-#endif
 
 /******************************************************************************
  * Typedefs and defines
@@ -97,76 +82,9 @@ main(void)
   return 0;
 }
 
-
-/*****************************************************************************
- *
- * Description:
- *    Draw cursor in main menu
- *
- * Params:
- *    [in] cursor - Cursor position
- *
- ****************************************************************************/
-static void
-drawMenuCursor(tU8 cursor)
-{
-  tU32 row;
-
-  for(row=0; row<4; row++)
-  {
-    lcdGotoxy(18,20+(14*row));
-    if(row == cursor)
-      lcdColor(0x00,0xe0);
-    else
-      lcdColor(0x00,0xfd);
-    
-    switch(row)
-    {
-      case 0: lcdPuts("Play Example"); break;
-      case 1: lcdPuts("Play Snake"); break;
-      case 2: lcdPuts("Play P-Pong"); break;
-      case 3: lcdPuts("Bluetooth"); break;
-      default: break;
-    }
-  }
-}
-
-
-/*****************************************************************************
- *
- * Description:
- *    Draw main menu
- *
- ****************************************************************************/
-static void
-drawMenu(void)
-{
-  lcdColor(0,0);
-  lcdClrscr();
-
-  lcdRect(14, 0, 102, 128, 0x6d);
-  lcdRect(15, 17, 100, 110, 0);
-
-  lcdGotoxy(48,1);
-  lcdColor(0x6d,0);
-  lcdPuts("MENU");
-  drawMenuCursor(cursor);
-}
-
-
-/*****************************************************************************
- *
- * Description:
- *    A process entry function 
- *
- * Params:
- *    [in] arg - This parameter is not used in this application. 
- *
- ****************************************************************************/
 static void
 proc1(void* arg)
 {
-  //display startup message
   resetLCD();
   lcdInit();
 
@@ -220,8 +138,6 @@ initProc(void* arg)
 
   osCreateProcess(proc1, proc1Stack, PROC1_STACK_SIZE, &pid1, 3, NULL, &error);
   osStartProcess(pid1, &error);
-
-  initBtProc();
   
   initKeyProc();
 
