@@ -1,19 +1,4 @@
-/******************************************************************************
- *
- * Copyright:
- *    (C) 2006 Embedded Artists AB
- *
- * File:
- *    snake.c
- *
- * Description:
- *    Implements the snake game.
- *
- *****************************************************************************/
 
-/******************************************************************************
- * Includes
- *****************************************************************************/
 #include "../pre_emptive_os/api/osapi.h"
 #include "../pre_emptive_os/api/general.h"
 #include <printf_P.h>
@@ -22,10 +7,6 @@
 #include "lcd.h"
 #include "key.h"
 
-
-/******************************************************************************
- * Typedefs and defines
- *****************************************************************************/
 #define MAXROW 20
 #define MAXCOL 31
 
@@ -33,27 +14,13 @@
 #define SNAKE_START_ROW  7
 #define PAUSE_LENGTH     2
 
-
-/*****************************************************************************
- * Local prototypes
- ****************************************************************************/
-static void showScore();
 static void addSegment();
 static void setupLevel();
 static void gotoxy(tU8 x, tU8 y, tU8 color);
-void addFood();
+static void addFood();
 
-
-/*****************************************************************************
- * Local variables
- ****************************************************************************/
-static tS32  score;
 static tS32  snakeLength;
 static tS32  speed;
-static tS32  obstacles;
-static tS32  level;
-static tBool firstPress;
-static tS32  high_score = 0;
 static tS8   screenGrid[MAXROW][MAXCOL];
 static tS8   direction = KEY_RIGHT;
 
@@ -63,41 +30,22 @@ struct snakeSegment
   tS32 col;
 } snake[100];
 
-
-/*****************************************************************************
- * External variables
- ****************************************************************************/
 extern volatile tU32 ms;
 
-
-/*****************************************************************************
- *
- * Description:
- *    Implement Snake game
- *
- ****************************************************************************/
 void playSnake(void)
 {
   tU8 keypress;
-  tU8 done = FALSE;
 
-  //game loop
-  do
+  while(1)
   {
-    score     = 0;
-    speed     = 14;
-    srand(ms);        //Ensure random seed initiated
     setupLevel();
+    speed = 14;
 
-    //main loop
     do
     {
       tS32 i;
-      
-      //delay between snake moves
       osSleep(speed * PAUSE_LENGTH);
-      
-      //check if key press
+
       keypress = checkKey();
       if (keypress != KEY_NOTHING)
       {
@@ -108,7 +56,6 @@ void playSnake(void)
           direction = keypress;
       }
 
-      //add a segment to the end of the snake
       addSegment();
 
       //removed last segment of snake
@@ -122,13 +69,6 @@ void playSnake(void)
       for (i=0; i<=snakeLength; i++)
         gotoxy(snake[i].col, snake[i].row, 0xfc);
 
-      //if first press on each level, pause until a key is pressed
-      if (firstPress == TRUE)
-      {
-        while(KEY_NOTHING == checkKey())
-          ;
-        firstPress = FALSE;
-      }
 
       //collision detection - snake (bad!)
       for (i=0; i<snakeLength-1; i++)
@@ -142,37 +82,18 @@ void playSnake(void)
       //collision detection - food (good!)
       if (screenGrid[snake[snakeLength-1].row][snake[snakeLength-1].col] == '.')
       {
-        //increase score and length of snake
-
         snakeLength++;
-        showScore();
-
         addSegment();
-
         addFood();
 
         //if length of snake reaches certain size, increase speed
         if (snakeLength % 3 == 0  && (speed > 1))
         {
         	speed--;
-//          score = snakeLength * 100;
-
-          
-//          //check if time to inclrease speed (every 5 levels)
-//          if ((level % 5 == 0) )
-//            speed--;
-
-          //draw next level
         }
       }
     } while (keypress != KEY_CENTER);
-    
-    //game over message
-    if (score > high_score)
-      high_score = score;
-    showScore();
-
-  } while (done == FALSE);
+  }
 }
 
 
@@ -185,6 +106,7 @@ void playSnake(void)
 void setupLevel()
 {
   tS32 row, col, i;
+  srand(ms);
 
   printf("MAXROW = ");
   printf("%d", MAXROW);
@@ -206,7 +128,6 @@ void setupLevel()
   //set up global variables for new level
   snakeLength = 4;
   direction   = KEY_RIGHT;
-  firstPress  = TRUE;
 
   //fill grid with blanks
   for(row=0; row<MAXROW; row++)
@@ -239,67 +160,9 @@ void setupLevel()
     }
   }
 
-  showScore();
 }
 
 
-/*****************************************************************************
- *
- * Description:
- *    Draw current score
- *
- ****************************************************************************/
-void showScore()
-{
-	score = snakeLength * 100;
-  tU8 str[13];
-  
-  str[0] = 'S';
-  str[1] = 'C';
-  str[2] = 'O';
-  str[3] = 'R';
-  str[4] = 'E';
-  str[5] = ':';
-  str[6] = score/100000 + '0';
-  str[7] = (score/10000)%10 + '0';
-  str[8] = (score/1000)%10 + '0';
-  str[9] = (score/100)%10 + '0';
-  str[10] = (score/10)%10 + '0';
-  str[11] = score%10 + '0';
-  str[12] = 0;
-  
-  //remove leading zeroes
-  if (str[6] == '0')
-  {
-    str[6] = ' ';
-    if (str[7] == '0')
-    {
-      str[7] = ' ';
-      if (str[8] == '0')
-      {
-        str[8] = ' ';
-        if (str[9] == '0')
-        {
-          str[9] = ' ';
-          if (str[10] == '0')
-          {
-            str[10] = ' ';
-          }
-        }
-      }
-    }
-  }
-  lcdGotoxy(0,114);
-  lcdPuts(str);
-}
-
-
-/*****************************************************************************
- *
- * Description:
- *    Add one snake segment
- *
- ****************************************************************************/
 void addSegment()
 {
   switch(direction)
@@ -316,11 +179,6 @@ void addSegment()
     case(KEY_DOWN) : snake[snakeLength].row = snake[snakeLength-1].row+1;
                      snake[snakeLength].col = snake[snakeLength-1].col;
   }
-
-
-
-
-
 
   //TODO remove equality ??
   if (snake[snakeLength].row >= MAXROW){
@@ -343,14 +201,6 @@ void addSegment()
   }
 }
 
-
-/*****************************************************************************
- *
- * Description:
- *    Goto a specifc xy position and draw a 4x4 pixel rectangle in
- *    specified color
- *
- ****************************************************************************/
 void gotoxy(tU8 x, tU8 y, tU8 color)
 {
   lcdRect(2+(x*4), 16+(y*4), 4, 4, color);
