@@ -8,6 +8,14 @@
 #include "buzzer.h"
 #include "hw.h"
 #include "timer.h"
+#include "../pre_emptive_os/api/osapi.h"
+#include "../pre_emptive_os/api/general.h"
+
+static volatile tU8 shouldPlay = FALSE;
+#define SOUNDPROC_STACK_SIZE 300
+
+static tU8 soundProcStack[SOUNDPROC_STACK_SIZE];
+static tU8 soundProcPid;
 
 static tU32 notes[] = {
         2272, // A - 440 Hz
@@ -111,6 +119,29 @@ static void playSong(tU8 *song) {
 
 void playMelody(void)
 {
-	playSong(song);
+	shouldPlay = TRUE;
 }
+
+static void
+procSound(void* arg)
+{
+  while(1)
+  {
+	if (shouldPlay == TRUE) {
+		playSong(song);
+		shouldPlay = FALSE;
+	}
+    osSleep(100);
+  }
+}
+
+void
+initSoundProc(void)
+{
+  tU8 error;
+
+  osCreateProcess(procSound, soundProcStack, SOUNDPROC_STACK_SIZE, &soundProcPid, 3, NULL, &error);
+  osStartProcess(soundProcPid, &error);
+}
+
 

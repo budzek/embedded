@@ -140,6 +140,7 @@ initProc(void* arg)
   osStartProcess(pid1, &error);
   
   initKeyProc();
+  initSoundProc();
 
   osDeleteProcess();
 }
