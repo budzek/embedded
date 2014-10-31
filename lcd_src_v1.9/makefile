@@ -57,6 +57,8 @@ CSRCS   = main.c           \
           snake.c          \
           eeprom.c         \
           i2c.c            \
+          timer.c            \
+          buzzer.c            \
           hw.c
           
           
