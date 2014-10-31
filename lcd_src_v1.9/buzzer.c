@@ -128,10 +128,10 @@ procSound(void* arg)
   while(1)
   {
 	if (shouldPlay == TRUE) {
-		playSong(song);
 		shouldPlay = FALSE;
+		playSong(song);
 	}
-    osSleep(100);
+    osSleep(20);
   }
 }
 
