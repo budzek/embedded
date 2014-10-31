@@ -67,12 +67,15 @@ void playSnake(void) {
 				if ((snake[snakeLength - 1].row) == (snake[i].row)
 						&& (snake[snakeLength - 1].col) == (snake[i].col)) {
 					keypress = KEY_CENTER; //exit loop - game over
+					osSleep(500);
 					break;
 				}
 
 			//collision detection - food (good!)
 			if (screenGrid[snake[snakeLength - 1].row][snake[snakeLength - 1].col]
 					== '.') {
+				screenGrid[snake[snakeLength - 1].row][snake[snakeLength - 1].col] =' ';
+
 				playMelody();
 				snakeLength++;
 				addSegment();
@@ -153,18 +156,25 @@ void setupLevel() {
 void addSegment() {
 	switch (direction) {
 	case (KEY_RIGHT):
+		printf("KEY_RIGHT\n");
 		snake[snakeLength].row = snake[snakeLength - 1].row;
 		snake[snakeLength].col = snake[snakeLength - 1].col + 1;
 		break;
 	case (KEY_LEFT):
+printf("KEY_LEFT\n");
+
 		snake[snakeLength].row = snake[snakeLength - 1].row;
 		snake[snakeLength].col = snake[snakeLength - 1].col - 1;
 		break;
 	case (KEY_UP):
+printf("KEY_UP\n");
+
 		snake[snakeLength].row = snake[snakeLength - 1].row - 1;
 		snake[snakeLength].col = snake[snakeLength - 1].col;
 		break;
 	case (KEY_DOWN):
+printf("KEY_DOWN\n");
+
 		snake[snakeLength].row = snake[snakeLength - 1].row + 1;
 		snake[snakeLength].col = snake[snakeLength - 1].col;
 	}
@@ -195,13 +205,15 @@ void gotoxy(tU8 x, tU8 y, tU8 color) {
 }
 
 void addFood() {
-	printf("***addFood started");
+	printf("***addFood started\n");
 
 	unsigned char ok =0;
+	unsigned char add =1;
+
 	int row, col;
 	while (!ok) {
 		ok =1;
-		printf("***addFood while looped");
+		printf("***addFood while looped\n");
 
 		row = rand() % MAXROW;
 		col = rand() % MAXCOL;
@@ -214,11 +226,19 @@ void addFood() {
 		}
 
 	}
+//	int row2, col2;
+//	for (row2 = 0; row2 < MAXROW; row2++)
+//		for (col2 = 0; col2 < MAXCOL; col2++)
+//			if(screenGrid[row2][col2] == '.'){
+//				printf("Food at position [%d][%d]\n", row2, col2);
+//				add = 0;
+//			}
+//	if(add){
 	screenGrid[row][col] = '.'; //= food
 	gotoxy(col, row, 0x1c);
-
-	printf("Food added at [%d][%d]", row, col);
-	printf("***addFood ended");
+//	}
+	printf("Food added at [%d][%d]\n", row, col);
+	printf("***addFood ended\n");
 
 }
 
