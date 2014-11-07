@@ -7,238 +7,220 @@
 #include "key.h"
 #include "buzzer.h"
 
-#define MAXROW 27
-#define MAXCOL 31
+#define ROWS 27
+#define COLUMNS 31
 
-#define SNAKE_START_COL 15
-#define SNAKE_START_ROW  7
-#define PAUSE_LENGTH     2
-
-static void addSegment();
-static void setupLevel();
-static void gotoxy(tU8 x, tU8 y, tU8 color);
-static void addFood();
-
-static tS32 snakeLength;
+static tS8 board[ROWS][COLUMNS];
+static tS8 direction;
+static tS32 lengthOfSnake;
 static tS32 speed;
-static tS8 screenGrid[MAXROW][MAXCOL];
-static tS8 direction = KEY_RIGHT;
 
-struct snakeSegment {
+struct snakePart {
 	tS32 row;
-	tS32 col;
+	tS32 column;
 } snake[100];
 
 extern volatile tU32 ms;
 
+static void addNewHead();
+static void initializeGame();
+static void drawBlock(tU8 x, tU8 y, tU8 color);
+static void addFood();
+static void removeTail();
+static void drawBoard();
+static tS8 collisionWithSnake();
+static tS8 collisionWithFood();
+
+#define START_COLUMN 15
+#define START_ROW  7
+#define PAUSE_LENGTH 2
+
 void playSnake(void) {
-	tU8 keypress;
+	tU8 joystick;
 
 	while (1) {
-		setupLevel();
-		speed = 14;
+		initializeGame();
+		speed = 0;
 
-		do {
+		while (1) {
 			tS32 i;
-			osSleep(speed * PAUSE_LENGTH);
+			osSleep((10 - speed) * PAUSE_LENGTH);
 
-			keypress = checkKey();
-			if (keypress != KEY_NOTHING) {
-				if ((keypress == KEY_UP) || (keypress == KEY_RIGHT)
-						|| (keypress == KEY_DOWN) || (keypress == KEY_LEFT))
-					direction = keypress;
+			joystick = checkKey();
+			if ((joystick == KEY_UP) || (joystick == KEY_RIGHT) || (joystick == KEY_DOWN) || (joystick == KEY_LEFT)) {
+				direction = joystick;
 			}
 
-			addSegment();
+			addNewHead();
+			removeTail();
 
-			//removed last segment of snake
-			gotoxy(snake[0].col, snake[0].row, 0);
+			for (i = 0; i <= lengthOfSnake; i++) {
+				drawBlock(snake[i].column, snake[i].row, 0xfc);
+			}
 
-			//remove last segment from the array
-			for (i = 1; i <= snakeLength; i++)
-				snake[i - 1] = snake[i];
-
-			//display snake in yellow
-			for (i = 0; i <= snakeLength; i++)
-				gotoxy(snake[i].col, snake[i].row, 0xfc);
-
-			//collision detection - snake (bad!)
-			for (i = 0; i < snakeLength - 1; i++)
-				if ((snake[snakeLength - 1].row) == (snake[i].row)
-						&& (snake[snakeLength - 1].col) == (snake[i].col)) {
-					keypress = KEY_CENTER; //exit loop - game over
-					osSleep(500);
-					break;
-				}
-
-			//collision detection - food (good!)
-			if (screenGrid[snake[snakeLength - 1].row][snake[snakeLength - 1].col]
-					== '.') {
-				screenGrid[snake[snakeLength - 1].row][snake[snakeLength - 1].col] =' ';
-
+			if (collisionWithSnake()) {
+				osSleep(500);
+				break;
+			}
+			if (collisionWithFood()) {
+				// remove food
+				board[snake[lengthOfSnake - 1].row][snake[lengthOfSnake - 1].column] = ' ';
 				playMelody();
-				snakeLength++;
-				addSegment();
+				lengthOfSnake++;
+				addNewHead();
 				addFood();
 
-				//if length of snake reaches certain size, increase speed
-				if (snakeLength % 3 == 0 && (speed > 1)) {
-					speed--;
+				if (lengthOfSnake % 3 == 0 && (speed < 9)) {
+					speed++;
 				}
-			}
-		} while (keypress != KEY_CENTER);
-	}
-}
-
-/*****************************************************************************
- *
- * Description:
- *    Initialize one level of the game. Draw game board.
- *
- ****************************************************************************/
-void setupLevel() {
-	tS32 row, col, i;
-	srand(ms);
-
-	printf("MAXROW = ");
-	printf("%d", MAXROW);
-	printf(" MAXCOL = ");
-	printf("%d", MAXCOL);
-
-	//clear screen
-	lcdColor(0, 0xe0);
-	lcdClrscr();
-
-	//draw frame
-	lcdGotoxy(42, 0);
-	lcdPuts("Snake");
-
-	//draw game board rectangle
-	lcdRect(0, 14, (4 * MAXCOL) + 4, (4 * MAXROW) + 4, 3);
-	lcdRect(2, 16, 4 * MAXCOL, 4 * MAXROW, 1);
-
-	//set up global variables for new level
-	snakeLength = 4;
-	direction = KEY_RIGHT;
-
-	//fill grid with blanks
-	for (row = 0; row < MAXROW; row++)
-		for (col = 0; col < MAXCOL; col++)
-			screenGrid[row][col] = ' ';
-
-	//fill grid with food
-	addFood();
-
-	//create snake array of length snakeLength
-	for (i = 0; i < snakeLength; i++) {
-		snake[i].row = SNAKE_START_ROW;
-		snake[i].col = SNAKE_START_COL + i;
-	}
-
-	//draw game board
-	for (row = 0; row < MAXROW; row++) {
-		for (col = 0; col < MAXCOL; col++) {
-			switch (screenGrid[row][col]) {
-			case ' ':
-				gotoxy(col, row, 0);
-				break;
-			case '.':
-				gotoxy(col, row, 0x1c);
-				break;
-			default:
-				break;
 			}
 		}
 	}
-
 }
 
-void addSegment() {
-	switch (direction) {
-	case (KEY_RIGHT):
-		printf("KEY_RIGHT\n");
-		snake[snakeLength].row = snake[snakeLength - 1].row;
-		snake[snakeLength].col = snake[snakeLength - 1].col + 1;
-		break;
-	case (KEY_LEFT):
-printf("KEY_LEFT\n");
+void initializeGame() {
+	tS32 row, column, i;
+	srand(ms);
 
-		snake[snakeLength].row = snake[snakeLength - 1].row;
-		snake[snakeLength].col = snake[snakeLength - 1].col - 1;
-		break;
-	case (KEY_UP):
-printf("KEY_UP\n");
+	lengthOfSnake = 4;
+	direction = KEY_RIGHT;
 
-		snake[snakeLength].row = snake[snakeLength - 1].row - 1;
-		snake[snakeLength].col = snake[snakeLength - 1].col;
-		break;
-	case (KEY_DOWN):
-printf("KEY_DOWN\n");
+	printf("ROWS = ");
+	printf("%d", ROWS);
+	printf(" COLUMNS = ");
+	printf("%d", COLUMNS);
 
-		snake[snakeLength].row = snake[snakeLength - 1].row + 1;
-		snake[snakeLength].col = snake[snakeLength - 1].col;
+	drawBoard();
+
+	for (row = 0; row < ROWS; row++)
+		for (column = 0; column < COLUMNS; column++)
+			board[row][column] = ' ';
+
+	addFood();
+
+	for (i = 0; i < lengthOfSnake; i++) {
+		snake[i].row = START_ROW;
+		snake[i].column = START_COLUMN + i;
 	}
 
-	//TODO remove equality ??
-	if (snake[snakeLength].row >= MAXROW) {
-		//  if (snake[snakeLength].row >= MAXROW){
-		printf("\n snake[%d].row >= %d %s", snakeLength-1, snake[snakeLength-1].row, " >= MAXROW");
-		snake[snakeLength].row = 0;
-	}
-	if (snake[snakeLength].row < 0) {
-		printf("\n snake[%d].row >= %d %s", snakeLength, snake[snakeLength-1].row, " < 0");
-		snake[snakeLength].row = MAXROW - 1;
-	}
-	//  if (snake[snakeLength].col >= MAXCOL){
-	if (snake[snakeLength].col >= MAXCOL) {
-		printf("\n snake[%d].col >= %d %s", snakeLength, snake[snakeLength-1].col, " >= MAXCOL");
-		snake[snakeLength].col = 0;
-	}
-	if (snake[snakeLength].col < 0) {
-		printf("\n snake[%d].col >= %d %s", snakeLength, snake[snakeLength-1].col, " < 0");
-		snake[snakeLength].col = MAXCOL - 1;
+	for (row = 0; row < ROWS; row++) {
+		for (column = 0; column < COLUMNS; column++) {
+			if (board[row][column] == ' ') {
+				drawBlock(column, row, 0);
+			}
+			else {
+				drawBlock(column, row, 0x1c);
+			}
+		}
 	}
 }
 
-void gotoxy(tU8 x, tU8 y, tU8 color) {
-	lcdRect(2 + (x * 4), 16 + (y * 4), 4, 4, color);
+void addNewHead() {
+	if (direction == KEY_RIGHT) {
+		snake[lengthOfSnake].row = snake[lengthOfSnake - 1].row;
+		snake[lengthOfSnake].column = snake[lengthOfSnake - 1].column + 1;
+	}
+	else if (direction == KEY_LEFT) {
+		snake[lengthOfSnake].row = snake[lengthOfSnake - 1].row;
+		snake[lengthOfSnake].column = snake[lengthOfSnake - 1].column - 1;
+	}
+	else if (direction == KEY_DOWN) {
+		snake[lengthOfSnake].row = snake[lengthOfSnake - 1].row + 1;
+		snake[lengthOfSnake].column = snake[lengthOfSnake - 1].column;
+	}
+	else if (direction == KEY_UP) {
+		snake[lengthOfSnake].row = snake[lengthOfSnake - 1].row - 1;
+		snake[lengthOfSnake].column = snake[lengthOfSnake - 1].column;
+	}
+
+	if (snake[lengthOfSnake].row >= ROWS) {
+		printf("\n snake[%d].row >= %d %s", lengthOfSnake-1, snake[lengthOfSnake-1].row, " >= ROWS");
+		snake[lengthOfSnake].row = 0;
+	}
+	if (snake[lengthOfSnake].row < 0) {
+		printf("\n snake[%d].row >= %d %s", lengthOfSnake, snake[lengthOfSnake-1].row, " < 0");
+		snake[lengthOfSnake].row = ROWS - 1;
+	}
+
+	if (snake[lengthOfSnake].column >= COLUMNS) {
+		printf("\n snake[%d].column >= %d %s", lengthOfSnake, snake[lengthOfSnake-1].column, " >= COLUMNS");
+		snake[lengthOfSnake].column = 0;
+	}
+	if (snake[lengthOfSnake].column < 0) {
+		printf("\n snake[%d].column >= %d %s", lengthOfSnake, snake[lengthOfSnake-1].column, " < 0");
+		snake[lengthOfSnake].column = COLUMNS - 1;
+	}
+}
+
+void removeTail() {
+	tS32 i;
+	drawBlock(snake[0].column, snake[0].row, 0);
+	for (i = 1; i <= lengthOfSnake; i++) {
+		snake[i - 1] = snake[i];
+	}
+}
+
+void drawBoard() {
+	lcdColor(0, 0xe0);
+	lcdClrscr();
+
+	lcdGotoxy(42, 0);
+	lcdPuts("Snake");
+
+	lcdRect(0, 14, (4 * COLUMNS) + 4, (4 * ROWS) + 4, 3);
+	lcdRect(2, 16, 4 * COLUMNS, 4 * ROWS, 1);
+}
+
+
+void drawBlock(tU8 xCoordinate, tU8 yCoordinate, tU8 color) {
+	lcdRect(2 + (xCoordinate * 4), 16 + (yCoordinate * 4), 4, 4, color);
 }
 
 void addFood() {
 	printf("***addFood started\n");
 
-	unsigned char ok =0;
-	unsigned char add =1;
+	unsigned char ok = 0;
 
-	int row, col;
+	int row, column;
 	while (!ok) {
-		ok =1;
-		printf("***addFood while looped\n");
+		ok = 1;
 
-		row = rand() % MAXROW;
-		col = rand() % MAXCOL;
+		row = rand() % ROWS;
+		column = rand() % COLUMNS;
 		int i = 0;
+
 		//check if snake is in place of food, if so run again to find empty place for food
-		for (i = 0; i < snakeLength; i++) {
-			if (snake[i].row == row && snake[i].col == col) {
-				ok =0;
+		for (i = 0; i < lengthOfSnake; i++) {
+			if (snake[i].row == row && snake[i].column == column) {
+				ok = 0;
 			}
 		}
-
 	}
-//	int row2, col2;
-//	for (row2 = 0; row2 < MAXROW; row2++)
-//		for (col2 = 0; col2 < MAXCOL; col2++)
-//			if(screenGrid[row2][col2] == '.'){
-//				printf("Food at position [%d][%d]\n", row2, col2);
-//				add = 0;
-//			}
-//	if(add){
-	screenGrid[row][col] = '.'; //= food
-	gotoxy(col, row, 0x1c);
-//	}
-	printf("Food added at [%d][%d]\n", row, col);
+
+	board[row][column] = '.';
+	drawBlock(column, row, 0x1c);
+
+	printf("Food added at [%d][%d]\n", row, column);
 	printf("***addFood ended\n");
 
+}
+
+tS8 collisionWithSnake() {
+	tS32 i;
+	for (i = 0; i < lengthOfSnake - 1; i++) {
+		if ((snake[lengthOfSnake - 1].row) == (snake[i].row) && (snake[lengthOfSnake - 1].column) == (snake[i].column)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+tS8 collisionWithFood() {
+	if (board[snake[lengthOfSnake - 1].row][snake[lengthOfSnake - 1].column] == '.') {
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
 
