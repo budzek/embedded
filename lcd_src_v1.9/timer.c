@@ -36,8 +36,8 @@ void timerDelayUs(tU32 time)
 void initTimer(){
 	  //initialize the interrupt vector
 	  VICIntSelect &= ~0x00000010;      //Interrupt on MR0: an interrupt is generated when MR0 matches the value in the TC.
-	  VICVectCntl7  =  0x00000027; //?
-	  VICVectAddr7  =  (tU32)stopTimerDelay;  // address of the ISR
+	  VICVectCntl4  =  0x00000024; //?
+	  VICVectAddr4  =  (tU32)stopTimerDelay;  // address of the ISR
 	  VICIntEnable |=  0x00000010;      // TIMER0 interrupt enabled
 }
 

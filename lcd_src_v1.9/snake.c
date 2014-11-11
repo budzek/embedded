@@ -134,20 +134,16 @@ void addNewHead() {
 	}
 
 	if (snake[lengthOfSnake].row >= ROWS) {
-		printf("\n snake[%d].row >= %d %s", lengthOfSnake-1, snake[lengthOfSnake-1].row, " >= ROWS");
 		snake[lengthOfSnake].row = 0;
 	}
 	if (snake[lengthOfSnake].row < 0) {
-		printf("\n snake[%d].row >= %d %s", lengthOfSnake, snake[lengthOfSnake-1].row, " < 0");
 		snake[lengthOfSnake].row = ROWS - 1;
 	}
 
 	if (snake[lengthOfSnake].column >= COLUMNS) {
-		printf("\n snake[%d].column >= %d %s", lengthOfSnake, snake[lengthOfSnake-1].column, " >= COLUMNS");
 		snake[lengthOfSnake].column = 0;
 	}
 	if (snake[lengthOfSnake].column < 0) {
-		printf("\n snake[%d].column >= %d %s", lengthOfSnake, snake[lengthOfSnake-1].column, " < 0");
 		snake[lengthOfSnake].column = COLUMNS - 1;
 	}
 }
@@ -177,7 +173,6 @@ void drawBlock(tU8 xCoordinate, tU8 yCoordinate, tU8 color) {
 }
 
 void addFood() {
-	printf("***addFood started\n");
 
 	unsigned char ok = 0;
 
@@ -201,7 +196,6 @@ void addFood() {
 	drawBlock(column, row, 0x1c);
 
 	printf("Food added at [%d][%d]\n", row, column);
-	printf("***addFood ended\n");
 
 }
 
@@ -209,6 +203,7 @@ tS8 collisionWithSnake() {
 	tS32 i;
 	for (i = 0; i < lengthOfSnake - 1; i++) {
 		if ((snake[lengthOfSnake - 1].row) == (snake[i].row) && (snake[lengthOfSnake - 1].column) == (snake[i].column)) {
+			printf("Collision with snake occurred at [%d][%d]\n", snake[i].row, snake[i].column);
 			return 1;
 		}
 	}
@@ -217,6 +212,7 @@ tS8 collisionWithSnake() {
 
 tS8 collisionWithFood() {
 	if (board[snake[lengthOfSnake - 1].row][snake[lengthOfSnake - 1].column] == '.') {
+		printf("Food was eaten at [%d][%d]\n", snake[lengthOfSnake - 1].row, snake[lengthOfSnake - 1].column);
 		return 1;
 	}
 	else {
