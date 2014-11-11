@@ -199,6 +199,7 @@ tS8 collisionWithSnake() {
 	for (i = 0; i < lengthOfSnake - 1; i++) {
 		if ((snake[lengthOfSnake - 1].row) == (snake[i].row) && (snake[lengthOfSnake - 1].column) == (snake[i].column)) {
 			printf("Collision with snake occurred at [%d][%d]\n", snake[i].row, snake[i].column);
+			return 1;
 		}
 	}
 	return 0;
