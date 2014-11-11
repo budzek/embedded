@@ -88,7 +88,6 @@ proc1(void* arg)
 {
   resetLCD();
   lcdInit();
-  initTimer();
 
   playSnake();
 }

@@ -9,17 +9,22 @@
 static volatile tU8 shouldStop = FALSE;
 static void timerDelayCommon(tU32 mr0)
 {
-	TIMER1_TCR = 0x02;
-	TIMER1_MR0 = mr0;
-	TIMER1_IR  = 0xff;
-//	TIMER1_MCR = 0x04;
-//	0x05 -> 101 interrupt will be thrown
-	TIMER1_MCR = 0x05;
-	TIMER1_TCR = 0x01;
-
-	//	while (TIMER1_TCR & 0x01);
-
 	shouldStop = FALSE;
+
+	TIMER1_TCR = 0x02; // reset timer
+	TIMER1_MR0 = mr0;
+	TIMER1_IR  = 0xff; // reset all flags before enable IRQs
+	TIMER1_MCR = 0x05; // on match: generate interrupt and stop
+
+	VICIntSelect &= ~0x20; // assign interrupt request 5 to IRQ category
+						   // 1 - FIQ
+						   // 0 - IRQ
+	VICIntEnable |=  0x20; // enable interrupt request 5
+	VICVectAddr5  = (tU32)stopTimerDelay;
+	VICVectCntl5  = 0x25; // enable interrupt slot 5 and assign interrupt request 5 to it
+
+	TIMER1_TCR = 0x01; // enable timer
+
 	while (shouldStop == FALSE);
 }
 
@@ -33,14 +38,9 @@ void timerDelayUs(tU32 time)
 	timerDelayCommon(time * (FOSC / 100) / 10000);
 }
 
-void initTimer(){
-	  //initialize the interrupt vector
-	  VICIntSelect &= ~0x00000010;      //Interrupt on MR0: an interrupt is generated when MR0 matches the value in the TC.
-	  VICVectCntl4  =  0x00000024; //?
-	  VICVectAddr4  =  (tU32)stopTimerDelay;  // address of the ISR
-	  VICIntEnable |=  0x00000010;      // TIMER0 interrupt enabled
-}
-
 void stopTimerDelay(){
 	shouldStop = TRUE;
+
+	TIMER1_IR = 0xff;        //reset all IRQ flags
+	VICVectAddr = 0x00;        //dummy write to signal end of interrupt
 }
