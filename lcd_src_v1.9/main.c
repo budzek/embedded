@@ -109,29 +109,9 @@ initProc(void* arg)
   eaInit();
   printf("\n*********************************************************");
   printf("\n*                                                       *");
-  printf("\n* Welcome to Embedded Artists' summer promotion board;  *");
-  printf("\n*   'LPC2104 Color LCD Game Board with Bluetooth'       *");
-  printf("\n* in cooperation with Future Electronics and Philips.   *");
-  printf("\n* Boards with embedded JTAG includes J-link(tm)         *");
-  printf("\n* technology from Segger.                               *");
+  printf("\n* Welcome to group G3 Snake project                     *");
   printf("\n*                                                       *");
-
-  printf("\n* Program version:  %d.%d                                 *", MAJOR_VER, MINOR_VER);
-  printf("\n* Program date:     %s                          *", RELEASE_DATE);
-
-  if (TRUE == ver1_0)
-    printf("\n* Hardware version: 1.0                                 *");
-  else if (TRUE == ver1_1)
-    printf("\n* Hardware version: 1.1                                 *");
-
-#ifdef __IAR_SYSTEMS_ICC__
-  printf("\n* Compiled with IAR Embedded Workbench                  *");
-#else
-  printf("\n* Compiled with GCC                                     *");
-#endif
-
-  printf("\n*                                                       *");
-  printf("\n* (C) Embedded Artists AB, 2006                         *");
+  printf("\n* (C) Group G3 & Embedded Artists AB, 2006              *");
   printf("\n*                                                       *");
   printf("\n*********************************************************\n");
   

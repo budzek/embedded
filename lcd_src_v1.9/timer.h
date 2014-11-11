@@ -14,5 +14,6 @@
 
 void timerDelayMs(tU32 time);
 void timerDelayUs(tU32 time);
+void stopTimerDelay(void);
 
 #endif /* TIMER_H_ */
