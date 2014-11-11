@@ -53,7 +53,6 @@ CODE    = THUMB
 CSRCS   = main.c           \
           lcd.c            \
           key.c            \
-          uart.c           \
           snake.c          \
           eeprom.c         \
           i2c.c            \
@@ -66,12 +65,10 @@ CSRCS   = main.c           \
 ASRCS   = 
 
 # List subdirectories to recursively invoke make in 
-SUBDIRS = startup \
-          irq_code
+SUBDIRS = startup
 
 # List additional libraries to link with
 LIBS    = startup/libea_startup_thumb.a \
-          irq_code/irqUart.a \
           gcc_files/libm.a \
           pre_emptive_os/pre_emptive_os.a
 

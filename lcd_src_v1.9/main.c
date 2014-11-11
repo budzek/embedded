@@ -22,8 +22,9 @@
 
 #include "lcd.h"
 #include "key.h"
-#include "uart.h"
+
 #include "snake.h"
+#include "timer.h"
 #include "hw.h"
 #include "version.h"
 
@@ -87,6 +88,7 @@ proc1(void* arg)
 {
   resetLCD();
   lcdInit();
+  initTimer();
 
   playSnake();
 }
