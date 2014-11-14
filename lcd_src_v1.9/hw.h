@@ -27,17 +27,10 @@
 #define LED_RED    2
 
 
-/*****************************************************************************
- * Global variables
- ****************************************************************************/
-extern tBool ver1_0;
-extern tBool ver1_1;
 
 void immediateIoInit(void);
 void resetLCD(void);
 void setBuzzer(tBool on);
-void setLED(tU8 ledSelect, tBool ledState);
-void resetBT(tBool resetFlag);
 tU8  getKeys(void);
 void selectLCD(tBool select);
 void sendToLCD(tU8 firstBit, tU8 data);
