@@ -139,7 +139,7 @@ sendToLCD(tU8 firstBit, tU8 data)
 {
   //disable SPI
   IOCLR = LCD_CLK;
-  PINSEL0 &= 0xffff00ff;
+  PINSEL0 &= 0xffff00ff; //Enable MOSI,MISO and clock and TxD1
   
   if (1 == firstBit)
     IOSET = LCD_MOSI;   //set MOSI
@@ -164,7 +164,7 @@ sendToLCD(tU8 firstBit, tU8 data)
   
   //send byte
   SPI_SPDR = data;
-  while((SPI_SPSR & 0x80) == 0)
+  while((SPI_SPSR & 0x80) == 0) // wait for datatransfer to be completed
     ;
 }
 
@@ -189,7 +189,7 @@ initSpiForLcd(void)
   PINSEL0 |= 0x00005500;
   
   //initialize SPI interface
-  SPI_SPCCR = 0x08;    
-  SPI_SPCR  = 0x20;
+  SPI_SPCCR = 0x08;    //bus into master state
+  SPI_SPCR  = 0x20;    //size of sending data unit
 }
 

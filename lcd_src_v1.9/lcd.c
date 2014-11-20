@@ -24,19 +24,22 @@
 /******************************************************************************
  * Typedefs and defines
  *****************************************************************************/
-#define LCD_CMD_SWRESET   0x01
-#define LCD_CMD_BSTRON    0x03
-#define LCD_CMD_SLEEPIN   0x10
-#define LCD_CMD_SLEEPOUT  0x11
-#define LCD_CMD_INVON     0x21
-#define LCD_CMD_SETCON    0x25
-#define LCD_CMD_DISPON    0x29
-#define LCD_CMD_CASET     0x2A
-#define LCD_CMD_PASET     0x2B
-#define LCD_CMD_RAMWR     0x2C
-#define LCD_CMD_RGBSET    0x2D
-#define LCD_CMD_MADCTL    0x36
-#define LCD_CMD_COLMOD    0x3A
+#define LCD_CMD_SWRESET   0x01 //Software reset - Reset default values and all segment & common outputs are set to VC (display off: blank display)
+#define LCD_CMD_BSTRON    0x03 //Booster ON- This command turns on booster related circuit
+#define LCD_CMD_SLEEPIN   0x10 //SLPIN Sleep in - Enter power down mode, sleep mode. Before using sleep in command, it is necessary to turn off the
+                               // display by entering the display off command.
+#define LCD_CMD_SLEEPOUT  0x11 //SLPOUT Sleep out - Switching off sleep IN mode. When leaving the sleep IN mode, it might be necessary to wait for 
+                               //a certain time before the power circuits become stable.
+#define LCD_CMD_INVON     0x21 //DISINV: Display Inversion On - Turns the display into a inverted screen without modifying the display data RAM.
+#define LCD_CMD_SETCON    0x25 //WRCNTR write contrast
+#define LCD_CMD_DISPON    0x29 //Turn on the display screen according to the current display data RAM content and the display timing and setting.
+#define LCD_CMD_CASET     0x2A //Column Address Set
+#define LCD_CMD_PASET     0x2B //RASET Row Address Set
+#define LCD_CMD_RAMWR     0x2C //Memory Write
+#define LCD_CMD_RGBSET    0x2D //Colour Set for 256-Color Display
+#define LCD_CMD_MADCTL    0x36 //Memory Data Access Control - This command defines read/write scanning direction of frame memory.
+#define LCD_CMD_COLMOD    0x3A //Interface Pixel Format - This command is used to define the format of RGB picture data, which is to be transferred 
+                               //via the MCU Interface
 
 #define MADCTL_HORIZ      0x48
 #define MADCTL_VERT       0x68
@@ -77,12 +80,12 @@ lcdInit(void)
   //select controller
   selectLCD(TRUE);
 
-	lcdWrcmd(LCD_CMD_SWRESET);
+	lcdWrcmd(LCD_CMD_SWRESET);   //Software reset - Reset default values and all segment & common outputs are set to VC (display off: blank display)
 
 	osSleep(1);
-	lcdWrcmd(LCD_CMD_SLEEPOUT);
-	lcdWrcmd(LCD_CMD_DISPON);
-	lcdWrcmd(LCD_CMD_BSTRON);
+	lcdWrcmd(LCD_CMD_SLEEPOUT);  //switch off SLEEPIN mode
+	lcdWrcmd(LCD_CMD_DISPON);    //Turn on the display screen according to the current display data RAM content and the display timing and setting
+	lcdWrcmd(LCD_CMD_BSTRON);    //Booster ON- This command turns on booster related circuit
 	osSleep(1);
 		
 	lcdWrcmd(LCD_CMD_MADCTL);   //Memory data acces control
@@ -91,7 +94,7 @@ lcdInit(void)
 	lcdWrdata(0x02);            //256 colour mode select
 	lcdWrcmd(LCD_CMD_INVON);    //Non Invert mode
 
-	lcdWrcmd(LCD_CMD_RGBSET);   //LUT write
+	lcdWrcmd(LCD_CMD_RGBSET);   //LUT write, Colour Set for 256-Color Display
   lcdWrdata(0);               //Red
   lcdWrdata(2);
   lcdWrdata(4);
@@ -165,7 +168,7 @@ lcdOff(void)
   //select controller
   selectLCD(TRUE);   
 
-  lcdWrcmd(LCD_CMD_SLEEPIN);
+  lcdWrcmd(LCD_CMD_SLEEPIN); //switch off SLEEPIN mode
 
   //deselect controller
   selectLCD(FALSE);
@@ -375,11 +378,11 @@ lcdWindow(tU8 xp, tU8 yp, tU8 xe, tU8 ye)
 static void
 lcdWindow1(tU8 xp, tU8 yp, tU8 xe, tU8 ye)
 {
-  lcdWrcmd(LCD_CMD_CASET);    //set X
+  lcdWrcmd(LCD_CMD_CASET);    //set X (column address set)
   lcdWrdata(xp+2);
 	lcdWrdata(xe+2);
 
-	lcdWrcmd(LCD_CMD_PASET);    //set Y
+	lcdWrcmd(LCD_CMD_PASET);    //set Y (row address set)
 	lcdWrdata(yp+2);
 	lcdWrdata(ye+2);
 }
