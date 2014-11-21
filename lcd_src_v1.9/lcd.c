@@ -38,7 +38,7 @@
 #define LCD_CMD_MADCTL    0x36
 #define LCD_CMD_COLMOD    0x3A
 
-#define MADCTL_HORIZ      0x48
+#define MADCTL_HORIZ      0x08
 #define MADCTL_VERT       0x68
 
 
